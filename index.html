@@ -1,0 +1,1637 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Genetics Quest - Warisan Sifat</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter & Fredoka -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+        .font-game {
+            font-family: 'Fredoka', cursive, sans-serif;
+        }
+        
+        /* Custom scrollbar for clean UI */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.03);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #a7f3d0;
+            border-radius: 10px;
+        }
+
+        /* Screen Animations */
+        .fade-in {
+            animation: fadeIn 0.35s ease-in-out forwards;
+        }
+        .slide-up {
+            animation: slideUp 0.35s ease-out forwards;
+        }
+        .shake {
+            animation: shake 0.4s ease-in-out;
+        }
+        .bounce-celebrate {
+            animation: bounceCelebrate 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+        }
+        .pulse-subtle {
+            animation: pulseSubtle 2s infinite;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+        @keyframes bounceCelebrate {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.1); }
+            70% { transform: scale(0.95); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes pulseSubtle {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+
+        /* Punnett Grid standard styles */
+        .punnett-cell {
+            transition: all 0.2s ease;
+        }
+        .punnett-cell.selected {
+            ring: 3px solid #10b981;
+            background-color: #ecfdf5;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-800 min-h-screen flex items-center justify-center p-0 sm:p-4">
+
+    <!-- Mobile Outer Container -->
+    <div id="appContainer" class="w-full max-w-md h-screen sm:h-[840px] bg-emerald-50 sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden relative border-0 sm:border-8 border-slate-800">
+
+        <!-- Top Status Bar Simulation -->
+        <div class="bg-emerald-700 text-white px-5 pt-3 pb-2 flex justify-between items-center text-xs font-semibold select-none z-30">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid font-game text-emerald-200">🧬 IPA KELAS 9</i>
+            </div>
+            <div class="flex items-center space-x-2">
+                <span id="topTime">10:00</span>
+                <i class="fa-solid fa-wifi"></i>
+                <i class="fa-solid fa-battery-full"></i>
+            </div>
+        </div>
+
+        <!-- Dynamic Content Header / Toast Layer -->
+        <div id="toastNotification" class="absolute top-12 left-4 right-4 z-50 transform -translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+            <div id="toastContent" class="bg-slate-800 text-white px-4 py-3 rounded-2xl shadow-xl flex items-center space-x-3 text-sm border-2 border-emerald-400">
+                <i id="toastIcon" class="fa-solid fa-circle-info text-emerald-400 text-lg"></i>
+                <span id="toastMessage" class="font-medium">Pesan notifikasi</span>
+            </div>
+        </div>
+
+        <!-- MAIN SCREEN VIEWPORT (5 Dynamic Screens) -->
+        <div class="flex-1 overflow-y-auto relative pb-20 scroll-smooth" id="viewport">
+
+            <!-- SCREEN 1: BERANDA -->
+            <section id="screen-beranda" class="screen-view p-4 space-y-4 fade-in">
+                
+                <!-- Main Hero Banner Card -->
+                <div class="relative bg-gradient-to-br from-emerald-600 via-teal-600 to-green-700 rounded-3xl p-5 text-white shadow-lg overflow-hidden border border-emerald-400/30">
+                    <!-- Leaf & Biology SVG Background Pattern -->
+                    <div class="absolute -right-6 -bottom-6 opacity-15 pointer-events-none">
+                        <svg width="180" height="180" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                        </svg>
+                    </div>
+
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="bg-emerald-800/60 backdrop-blur-md text-emerald-200 text-xs px-3 py-1 rounded-full font-semibold border border-emerald-400/30">
+                            🧬 IPA / BIOLOGI SMP
+                        </span>
+                        <span class="text-xs font-semibold text-emerald-100 flex items-center gap-1">
+                            <i class="fa-solid fa-star text-amber-300"></i> Class 9
+                        </span>
+                    </div>
+
+                    <div class="flex items-center space-x-4 my-2">
+                        <!-- Cartoon DNA Avatar SVG -->
+                        <div class="w-20 h-20 bg-white/10 backdrop-blur-sm rounded-2xl p-2 flex items-center justify-center border border-white/20 shadow-inner flex-shrink-0 pulse-subtle">
+                            <svg viewBox="0 0 100 100" class="w-full h-full">
+                                <path d="M30 20 Q50 50 70 20 M30 80 Q50 50 70 80" stroke="#fef08a" stroke-width="8" stroke-linecap="round" fill="none"/>
+                                <path d="M70 20 Q50 50 30 20 M70 80 Q50 50 30 80" stroke="#a7f3d0" stroke-width="8" stroke-linecap="round" fill="none"/>
+                                <line x1="38" y1="32" x2="62" y2="32" stroke="#ffffff" stroke-width="5"/>
+                                <line x1="48" y1="50" x2="52" y2="50" stroke="#fef08a" stroke-width="5"/>
+                                <line x1="38" y1="68" x2="62" y2="68" stroke="#ffffff" stroke-width="5"/>
+                                <circle cx="38" cy="32" r="4" fill="#10b981"/>
+                                <circle cx="62" cy="32" r="4" fill="#f59e0b"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h1 class="text-2xl font-black tracking-tight font-game text-yellow-300 drop-shadow-md">
+                                GENETICS QUEST
+                            </h1>
+                            <p class="text-sm font-bold text-emerald-100 uppercase tracking-wider">
+                                “Warisan Sifat”
+                            </p>
+                        </div>
+                    </div>
+
+                    <p class="text-xs text-emerald-50 leading-relaxed mt-2 bg-emerald-800/40 p-2.5 rounded-xl border border-emerald-500/20">
+                        Jelajahi dunia genetika melalui materi, kuis, dan permainan interaktif!
+                    </p>
+
+                    <!-- Main CTA Buttons -->
+                    <div class="grid grid-cols-2 gap-2.5 mt-4">
+                        <button onclick="navigateTo('materi')" class="bg-amber-400 hover:bg-amber-300 active:scale-95 text-slate-900 font-bold py-2.5 px-3 rounded-2xl shadow-md transition-all flex items-center justify-center space-x-2 text-xs">
+                            <i class="fa-solid fa-play text-sm"></i>
+                            <span>MULAI BELAJAR</span>
+                        </button>
+                        <button onclick="navigateTo('materi')" class="bg-white/20 hover:bg-white/30 active:scale-95 text-white font-bold py-2.5 px-3 rounded-2xl shadow-sm border border-white/30 backdrop-blur-sm transition-all flex items-center justify-center space-x-2 text-xs">
+                            <i class="fa-solid fa-book-open"></i>
+                            <span>LIHAT MATERI</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Features Shortcut Cards -->
+                <div class="space-y-2.5">
+                    <h2 class="text-xs font-extrabold uppercase tracking-wider text-slate-500 px-1 flex items-center justify-between">
+                        <span>Fitur Utama</span>
+                        <i class="fa-solid fa-compass text-emerald-600"></i>
+                    </h2>
+
+                    <!-- Card 1: Materi -->
+                    <div onclick="navigateTo('materi')" class="bg-white p-3.5 rounded-2xl shadow-sm border border-emerald-100 hover:border-emerald-300 transition-all cursor-pointer flex items-center space-x-3 group active:scale-98">
+                        <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-xl font-bold group-hover:scale-110 transition-transform">
+                            🧬
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-extrabold text-sm text-slate-800 group-hover:text-emerald-700">MATERI</h3>
+                            <p class="text-xs text-slate-500">Pelajari konsep dasar genetika & pewarisan sifat.</p>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-slate-300 text-xs"></i>
+                    </div>
+
+                    <!-- Card 2: Kuis -->
+                    <div onclick="navigateTo('kuis')" class="bg-white p-3.5 rounded-2xl shadow-sm border border-purple-100 hover:border-purple-300 transition-all cursor-pointer flex items-center space-x-3 group active:scale-98">
+                        <div class="w-12 h-12 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center text-xl font-bold group-hover:scale-110 transition-transform">
+                            📝
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-extrabold text-sm text-slate-800 group-hover:text-purple-700">KUIS</h3>
+                            <p class="text-xs text-slate-500">Uji pemahamanmu dengan 10 soal tantangan.</p>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-slate-300 text-xs"></i>
+                    </div>
+
+                    <!-- Card 3: Game -->
+                    <div onclick="navigateTo('game')" class="bg-white p-3.5 rounded-2xl shadow-sm border border-amber-100 hover:border-amber-300 transition-all cursor-pointer flex items-center space-x-3 group active:scale-98">
+                        <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-xl font-bold group-hover:scale-110 transition-transform">
+                            🎮
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-extrabold text-sm text-slate-800 group-hover:text-amber-700">GAME GENETIKA</h3>
+                            <p class="text-xs text-slate-500">Mainkan tantangan Punnett Square interaktif.</p>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-slate-300 text-xs"></i>
+                    </div>
+                </div>
+
+                <!-- Dynamic Learning Progress Section -->
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-xs font-black uppercase text-slate-700 tracking-wider flex items-center gap-1.5">
+                            <i class="fa-solid fa-chart-line text-emerald-600"></i> PROGRES BELAJAR
+                        </h3>
+                        <span id="overallPercentBadge" class="text-xs font-extrabold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">
+                            0%
+                        </span>
+                    </div>
+
+                    <div class="space-y-2 text-xs">
+                        <div>
+                            <div class="flex justify-between font-semibold text-slate-600 mb-1">
+                                <span>Materi Terbaca</span>
+                                <span id="homeMateriProgressText">0 / 8 Topik</span>
+                            </div>
+                            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                                <div id="homeMateriBar" class="bg-emerald-500 h-full w-0 transition-all duration-500"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between font-semibold text-slate-600 mb-1">
+                                <span>Skor Kuis Terbaik</span>
+                                <span id="homeQuizScoreText">Belum Dikirim (0)</span>
+                            </div>
+                            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                                <div id="homeQuizBar" class="bg-purple-500 h-full w-0 transition-all duration-500"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between font-semibold text-slate-600 mb-1">
+                                <span>Skor Game Punnett</span>
+                                <span id="homeGameScoreText">0 Poin</span>
+                            </div>
+                            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                                <div id="homeGameBar" class="bg-amber-500 h-full w-0 transition-all duration-500"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- SCREEN 2: MATERI / GLOSARIUM -->
+            <section id="screen-materi" class="screen-view p-4 space-y-4 hidden fade-in">
+                
+                <!-- Screen Header -->
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-xl font-extrabold text-slate-800 font-game flex items-center gap-2">
+                            <span>📚 MATERI / GLOSARIUM</span>
+                        </h1>
+                        <p class="text-xs text-slate-500">Konsep dasar Genetika & Pewarisan Sifat SMP 9</p>
+                    </div>
+                    <span id="materiCounterBadge" class="bg-emerald-100 text-emerald-800 text-xs font-extrabold px-3 py-1 rounded-full border border-emerald-200">
+                        Topik 1/8
+                    </span>
+                </div>
+
+                <!-- Dynamic Material Detail Area (Single Dynamic Screen Rule) -->
+                <div id="materialDetailBox" class="bg-white rounded-3xl p-5 shadow-sm border border-emerald-200 space-y-4">
+                    <div class="flex items-start justify-between border-b border-slate-100 pb-3">
+                        <div class="flex items-center space-x-3">
+                            <div id="matDetailIcon" class="w-12 h-12 bg-emerald-100 text-emerald-700 rounded-2xl flex items-center justify-center text-2xl font-bold shadow-sm">
+                                🧬
+                            </div>
+                            <div>
+                                <span id="matDetailIndex" class="text-[10px] uppercase font-bold text-emerald-600 tracking-wider">MATERI 1 DARI 8</span>
+                                <h2 id="matDetailTitle" class="text-lg font-black text-slate-800 leading-tight">GEN & DNA</h2>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Material Explanation Body -->
+                    <div class="space-y-3 text-xs leading-relaxed text-slate-700">
+                        <div class="bg-emerald-50/70 p-3 rounded-2xl border border-emerald-100">
+                            <h4 class="font-bold text-emerald-900 mb-1 flex items-center gap-1.5">
+                                <i class="fa-solid fa-lightbulb text-amber-500"></i> Penjelasan Konsep
+                            </h4>
+                            <p id="matDetailExplain" class="text-slate-700">
+                                Gen merupakan bagian dari DNA yang membawa informasi genetik untuk menentukan sifat makhluk hidup.
+                            </p>
+                        </div>
+
+                        <div class="bg-blue-50/70 p-3 rounded-2xl border border-blue-100">
+                            <h4 class="font-bold text-blue-900 mb-1 flex items-center gap-1.5">
+                                <i class="fa-solid fa-cubes text-blue-500"></i> Contoh Nyata
+                            </h4>
+                            <p id="matDetailExample" class="text-slate-700">
+                                Gen menentukan warna bola mata, bentuk rambut (keriting/lurus), dan golongan darah.
+                            </p>
+                        </div>
+
+                        <div class="bg-purple-50/70 p-3 rounded-2xl border border-purple-100">
+                            <h4 class="font-bold text-purple-900 mb-1 flex items-center gap-1.5">
+                                <i class="fa-solid fa-key text-purple-500"></i> Poin Kunci
+                            </h4>
+                            <ul id="matDetailKeys" class="list-disc list-inside space-y-1 text-slate-700">
+                                <li>DNA berbentuk heliks ganda (double helix).</li>
+                                <li>Gen tersusun di dalam kromosom.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Mini Challenge / Test yourself inline -->
+                    <div id="miniChallengeArea" class="bg-amber-50 rounded-2xl p-3.5 border border-amber-200">
+                        <div class="flex justify-between items-center mb-1.5">
+                            <span class="text-[10px] font-black uppercase text-amber-800 tracking-wider flex items-center gap-1">
+                                <i class="fa-solid fa-bolt text-amber-600"></i> Coba Tantangan Cepat
+                            </span>
+                        </div>
+                        <p id="miniChallengeQ" class="text-xs font-bold text-slate-800 mb-2">
+                            Dimanakah gen berada di dalam sel?
+                        </p>
+                        <div id="miniChallengeOptions" class="grid grid-cols-2 gap-2 text-xs">
+                            <!-- Dynamic mini challenge buttons -->
+                        </div>
+                        <div id="miniChallengeFeedback" class="hidden mt-2 text-xs font-bold p-2 rounded-xl text-center"></div>
+                    </div>
+
+                    <!-- Navigation inside Materi Detail -->
+                    <div class="flex items-center justify-between pt-2">
+                        <button id="btnPrevMaterial" onclick="changeMaterial(-1)" class="bg-slate-100 hover:bg-slate-200 disabled:opacity-40 text-slate-700 text-xs font-bold py-2.5 px-4 rounded-xl transition-all flex items-center space-x-1">
+                            <i class="fa-solid fa-arrow-left"></i>
+                            <span>SEBELUMNYA</span>
+                        </button>
+                        <button id="btnNextMaterial" onclick="changeMaterial(1)" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2.5 px-4 rounded-xl shadow-md transition-all flex items-center space-x-1">
+                            <span>BERIKUTNYA</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Scrollable List of Topics -->
+                <div class="space-y-2">
+                    <h3 class="text-xs font-black uppercase text-slate-500 tracking-wider px-1">Daftar Topik Materi (8)</h3>
+                    <div id="materiTopicList" class="space-y-2">
+                        <!-- Rendered by JS -->
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- SCREEN 3: KUIS -->
+            <section id="screen-kuis" class="screen-view p-4 space-y-4 hidden fade-in">
+                
+                <!-- Quiz Active Interface -->
+                <div id="quizPlayArea" class="space-y-4">
+                    <!-- Quiz Stage Header -->
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+                        <div>
+                            <span class="text-[10px] font-extrabold uppercase text-purple-600 tracking-wider">🧬 GENETICS QUEST</span>
+                            <h2 id="quizStageLabel" class="text-base font-black text-slate-800 font-game">STAGE 1: KONSEP DASAR</h2>
+                        </div>
+                        <div class="text-right">
+                            <div class="flex space-x-1 text-red-500 text-sm mb-0.5 justify-end" id="quizLives">
+                                <i class="fa-solid fa-heart"></i>
+                                <i class="fa-solid fa-heart"></i>
+                                <i class="fa-solid fa-heart"></i>
+                            </div>
+                            <span class="text-xs font-extrabold text-slate-700">SKOR: <span id="quizScoreDisplay" class="text-purple-600 font-black">0</span></span>
+                        </div>
+                    </div>
+
+                    <!-- Progress Header -->
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-xs font-bold text-slate-600">
+                            <span id="quizProgressText">SOAL 1 DARI 10</span>
+                            <span id="quizPercentText">10%</span>
+                        </div>
+                        <div class="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
+                            <div id="quizProgressBar" class="bg-purple-600 h-full w-10 transition-all duration-300"></div>
+                        </div>
+                    </div>
+
+                    <!-- Question Card -->
+                    <div class="bg-white p-5 rounded-3xl shadow-sm border border-purple-100 space-y-4">
+                        <p id="quizQuestionText" class="text-sm font-extrabold text-slate-800 leading-snug">
+                            Apa yang dimaksud dengan gen?
+                        </p>
+
+                        <!-- Answer Options -->
+                        <div id="quizOptionsContainer" class="space-y-2.5">
+                            <!-- Dynamically generated buttons A, B, C, D -->
+                        </div>
+
+                        <!-- Feedback Banner -->
+                        <div id="quizFeedbackBox" class="hidden p-3.5 rounded-2xl text-xs space-y-1 border">
+                            <div id="quizFeedbackTitle" class="font-black text-sm">✓ JAWABAN BENAR!</div>
+                            <p id="quizFeedbackExplanation" class="text-slate-700 leading-relaxed"></p>
+                        </div>
+
+                        <!-- Quiz Action Button -->
+                        <button id="btnQuizAction" onclick="handleQuizSubmit()" class="w-full bg-purple-600 hover:bg-purple-700 active:scale-98 text-white font-black py-3 rounded-2xl shadow-md transition-all text-xs tracking-wider uppercase">
+                            JAWAB
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Quiz Result View (Hidden Initially) -->
+                <div id="quizResultArea" class="hidden bg-white rounded-3xl p-6 shadow-md border border-purple-200 text-center space-y-5 slide-up">
+                    <div class="text-5xl bounce-celebrate">🎉</div>
+                    <div>
+                        <h2 class="text-xl font-black text-slate-800 font-game">SELAMAT, KAMU SELESAI!</h2>
+                        <p class="text-xs text-slate-500 mt-1">Hasil evaluasi pemahaman Genetika</p>
+                    </div>
+
+                    <!-- Stars display -->
+                    <div id="quizStarsContainer" class="flex justify-center space-x-2 text-2xl text-amber-400">
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-regular fa-star"></i>
+                        <i class="fa-regular fa-star"></i>
+                    </div>
+
+                    <!-- Dynamic Score Card -->
+                    <div class="bg-purple-50 rounded-2xl p-4 border border-purple-100 space-y-3">
+                        <div>
+                            <span class="text-[10px] font-black uppercase text-purple-600 tracking-wider">SKOR AKHIR</span>
+                            <div id="resQuizScore" class="text-4xl font-black text-purple-700 font-game">80</div>
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-2 pt-2 border-t border-purple-200/60 text-xs">
+                            <div class="bg-white p-2 rounded-xl shadow-2xs">
+                                <span class="text-[10px] text-slate-400 block font-bold">BENAR</span>
+                                <span id="resQuizCorrect" class="font-extrabold text-emerald-600 text-sm">8</span>
+                            </div>
+                            <div class="bg-white p-2 rounded-xl shadow-2xs">
+                                <span class="text-[10px] text-slate-400 block font-bold">SALAH</span>
+                                <span id="resQuizIncorrect" class="font-extrabold text-red-500 text-sm">2</span>
+                            </div>
+                            <div class="bg-white p-2 rounded-xl shadow-2xs">
+                                <span class="text-[10px] text-slate-400 block font-bold">PERSEN</span>
+                                <span id="resQuizPercent" class="font-extrabold text-purple-700 text-sm">80%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Motivational Message -->
+                    <p id="resQuizMsg" class="text-xs font-semibold text-slate-700 bg-amber-50 p-3 rounded-2xl border border-amber-200">
+                        Hebat! Pemahamanmu tentang genetika sudah sangat baik.
+                    </p>
+
+                    <!-- Result Action Buttons -->
+                    <div class="space-y-2">
+                        <button onclick="resetQuiz()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-2xl shadow-md transition-all text-xs tracking-wider uppercase">
+                            MAIN LAGI
+                        </button>
+                        <button onclick="navigateTo('beranda')" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-2xl transition-all text-xs">
+                            KEMBALI KE BERANDA
+                        </button>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- SCREEN 4: GAME GENETIKA -->
+            <section id="screen-game" class="screen-view p-4 space-y-4 hidden fade-in">
+                
+                <!-- Game Active View -->
+                <div id="gamePlayArea" class="space-y-4">
+                    <!-- Game Header -->
+                    <div class="bg-slate-900 text-white p-4 rounded-3xl shadow-lg border border-slate-700 flex items-center justify-between">
+                        <div>
+                            <span class="text-[10px] font-extrabold uppercase text-emerald-400 tracking-wider flex items-center gap-1">
+                                🧬 GENETICS QUEST GAME
+                            </span>
+                            <h2 id="gameStageTitle" class="text-base font-black text-amber-300 font-game">LEVEL 1</h2>
+                        </div>
+                        <div class="text-right">
+                            <div id="gameLivesDisplay" class="flex space-x-1 text-red-500 text-sm mb-0.5 justify-end">
+                                <i class="fa-solid fa-heart"></i>
+                                <i class="fa-solid fa-heart"></i>
+                                <i class="fa-solid fa-heart"></i>
+                            </div>
+                            <span class="text-xs font-extrabold text-slate-200">SKOR: <span id="gameScoreDisplay" class="text-amber-400 font-black">0</span></span>
+                        </div>
+                    </div>
+
+                    <!-- Level Step Progress -->
+                    <div class="flex items-center justify-between text-xs font-bold text-slate-600 bg-white p-2.5 rounded-2xl shadow-2xs border border-slate-200">
+                        <span id="gameChallengeStepText">Tantangan 1 / 5</span>
+                        <div class="flex space-x-1.5" id="gameStepDots">
+                            <span class="w-3 h-3 rounded-full bg-amber-400"></span>
+                            <span class="w-3 h-3 rounded-full bg-slate-200"></span>
+                            <span class="w-3 h-3 rounded-full bg-slate-200"></span>
+                            <span class="w-3 h-3 rounded-full bg-slate-200"></span>
+                            <span class="w-3 h-3 rounded-full bg-slate-200"></span>
+                        </div>
+                    </div>
+
+                    <!-- Stage Dynamic Container -->
+                    <div id="gameChallengeContainer" class="bg-white p-5 rounded-3xl shadow-sm border border-amber-200 space-y-4">
+                        <!-- Loaded dynamically depending on challenge index -->
+                    </div>
+
+                    <!-- Game Feedback Box -->
+                    <div id="gameFeedbackBox" class="hidden p-3.5 rounded-2xl text-xs space-y-1 border">
+                        <div id="gameFeedbackTitle" class="font-black text-sm">✓ BENAR!</div>
+                        <p id="gameFeedbackDesc" class="text-slate-700"></p>
+                    </div>
+
+                    <!-- Game Action Button -->
+                    <button id="btnGameAction" onclick="handleGameSubmit()" class="w-full bg-amber-500 hover:bg-amber-600 active:scale-98 text-slate-900 font-black py-3 rounded-2xl shadow-md transition-all text-xs tracking-wider uppercase">
+                        CEK JAWABAN
+                    </button>
+                </div>
+
+                <!-- Game Final Result Screen -->
+                <div id="gameResultArea" class="hidden bg-white rounded-3xl p-6 shadow-md border border-amber-300 text-center space-y-5 slide-up">
+                    <div class="text-5xl bounce-celebrate">🏆</div>
+                    <div>
+                        <h2 class="text-2xl font-black text-slate-800 font-game">SELAMAT! GAME SELESAI!</h2>
+                        <p class="text-xs text-slate-500 mt-1">Luar biasa! Kamu berhasil menyelesaikan Genetics Quest.</p>
+                    </div>
+
+                    <!-- Dynamic Stars -->
+                    <div id="gameStarsContainer" class="flex justify-center space-x-2 text-3xl text-amber-400">
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                    </div>
+
+                    <!-- Final Score Badge -->
+                    <div class="bg-gradient-to-br from-amber-400 to-amber-500 p-4 rounded-2xl text-slate-900 shadow-sm space-y-1">
+                        <span class="text-xs font-black uppercase tracking-wider">TOTAL SKOR GAME</span>
+                        <div id="resGameScore" class="text-4xl font-black font-game">100</div>
+                    </div>
+
+                    <p class="text-xs font-bold text-emerald-800 bg-emerald-50 p-3 rounded-2xl border border-emerald-200">
+                        Kamu telah menguasai papan Punnett Square & dasar genetika pewarisan sifat!
+                    </p>
+
+                    <div class="space-y-2">
+                        <button onclick="resetGame()" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-900 font-black py-3 rounded-2xl shadow-md transition-all text-xs tracking-wider uppercase">
+                            MAIN LAGI
+                        </button>
+                        <button onclick="navigateTo('beranda')" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-2xl transition-all text-xs">
+                            KEMBALI KE BERANDA
+                        </button>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- SCREEN 5: PROFIL -->
+            <section id="screen-profil" class="screen-view p-4 space-y-4 hidden fade-in">
+                
+                <!-- Profile Header Card -->
+                <div class="bg-white rounded-3xl p-5 shadow-sm border border-emerald-200 text-center space-y-3">
+                    <div class="w-20 h-20 bg-emerald-100 text-emerald-700 rounded-full mx-auto flex items-center justify-center text-3xl shadow-inner border-2 border-emerald-300">
+                        🧬
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-black text-slate-800 font-game">GENETICS QUEST</h2>
+                        <p class="text-xs font-bold text-emerald-600 uppercase tracking-wider">“Warisan Sifat”</p>
+                        <span class="inline-block mt-2 bg-emerald-100 text-emerald-800 text-[10px] font-extrabold px-3 py-1 rounded-full">
+                            VERSI 1.0
+                        </span>
+                    </div>
+                </div>
+
+                <!-- App Details -->
+                <div class="bg-white rounded-3xl p-5 shadow-sm border border-slate-200 space-y-3 text-xs">
+                    <h3 class="font-black text-slate-800 text-sm flex items-center gap-2 border-b border-slate-100 pb-2">
+                        <i class="fa-solid fa-circle-info text-emerald-600"></i> Tentunya Tentang Aplikasi
+                    </h3>
+                    <p class="text-slate-600 leading-relaxed">
+                        Genetics Quest adalah aplikasi pembelajaran interaktif untuk membantu siswa SMP memahami konsep genetika dan pewarisan sifat melalui materi, kuis, dan permainan genetika.
+                    </p>
+
+                    <div class="grid grid-cols-2 gap-2 pt-2">
+                        <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                            <span class="text-[10px] text-slate-400 font-bold block">TARGET</span>
+                            <span class="font-extrabold text-slate-800">Siswa SMP Kelas 9</span>
+                        </div>
+                        <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                            <span class="text-[10px] text-slate-400 font-bold block">MATA PELAJARAN</span>
+                            <span class="font-extrabold text-slate-800">IPA / Biologi</span>
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                        <span class="text-[10px] text-slate-400 font-bold block">MATERI PEMBELAJARAN</span>
+                        <span class="font-extrabold text-slate-800">Genetika dan Pewarisan Sifat</span>
+                    </div>
+                </div>
+
+                <!-- Features Checklist -->
+                <div class="bg-white rounded-3xl p-5 shadow-sm border border-slate-200 space-y-2 text-xs">
+                    <h3 class="font-black text-slate-800 text-sm flex items-center gap-2 border-b border-slate-100 pb-2">
+                        <i class="fa-solid fa-list-check text-purple-600"></i> Fitur Aplikasi
+                    </h3>
+                    <div class="grid grid-cols-2 gap-2 pt-1 text-slate-700 font-medium">
+                        <div class="flex items-center space-x-1.5"><i class="fa-solid fa-check text-emerald-500"></i> <span>Materi Genetika</span></div>
+                        <div class="flex items-center space-x-1.5"><i class="fa-solid fa-check text-emerald-500"></i> <span>Glosarium</span></div>
+                        <div class="flex items-center space-x-1.5"><i class="fa-solid fa-check text-emerald-500"></i> <span>Kuis 10 Soal</span></div>
+                        <div class="flex items-center space-x-1.5"><i class="fa-solid fa-check text-emerald-500"></i> <span>Sistem Skor</span></div>
+                        <div class="flex items-center space-x-1.5"><i class="fa-solid fa-check text-emerald-500"></i> <span>Feedback Jawaban</span></div>
+                        <div class="flex items-center space-x-1.5"><i class="fa-solid fa-check text-emerald-500"></i> <span>Punnett Square</span></div>
+                        <div class="flex items-center space-x-1.5"><i class="fa-solid fa-check text-emerald-500"></i> <span>Game Stage</span></div>
+                        <div class="flex items-center space-x-1.5"><i class="fa-solid fa-check text-emerald-500"></i> <span>Sistem Bintang</span></div>
+                    </div>
+                </div>
+
+                <!-- Creator Credits Card -->
+                <div class="bg-gradient-to-r from-emerald-600 to-teal-700 rounded-3xl p-4 text-white shadow-sm flex items-center justify-between">
+                    <div>
+                        <span class="text-[10px] font-bold text-emerald-200 block">DIBUAT OLEH</span>
+                        <h4 class="text-base font-black">Wahyu Sudrajad</h4>
+                        <p class="text-[11px] text-emerald-100">Inovasi Media Pembelajaran Digital</p>
+                    </div>
+                    <div class="w-12 h-12 bg-white/20 rounded-2xl backdrop-blur-md flex items-center justify-center text-xl">
+                        👨‍🏫
+                    </div>
+                </div>
+
+            </section>
+
+        </div>
+
+        <!-- BOTTOM NAVIGATION BAR (Strictly 5 items across all views) -->
+        <div class="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-2 py-2 flex justify-around items-center z-40 shadow-lg">
+            
+            <button onclick="navigateTo('beranda')" id="nav-beranda" class="nav-item flex flex-col items-center py-1 px-2.5 rounded-2xl text-emerald-700 transition-all active:scale-90">
+                <i class="fa-solid fa-house text-lg mb-0.5"></i>
+                <span class="text-[10px] font-extrabold">HOME</span>
+            </button>
+
+            <button onclick="navigateTo('materi')" id="nav-materi" class="nav-item flex flex-col items-center py-1 px-2.5 rounded-2xl text-slate-400 hover:text-emerald-600 transition-all active:scale-90">
+                <i class="fa-solid fa-book text-lg mb-0.5"></i>
+                <span class="text-[10px] font-semibold">MATERI</span>
+            </button>
+
+            <button onclick="navigateTo('kuis')" id="nav-kuis" class="nav-item flex flex-col items-center py-1 px-2.5 rounded-2xl text-slate-400 hover:text-emerald-600 transition-all active:scale-90">
+                <i class="fa-solid fa-pen-to-square text-lg mb-0.5"></i>
+                <span class="text-[10px] font-semibold">KUIS</span>
+            </button>
+
+            <button onclick="navigateTo('game')" id="nav-game" class="nav-item flex flex-col items-center py-1 px-2.5 rounded-2xl text-slate-400 hover:text-emerald-600 transition-all active:scale-90">
+                <i class="fa-solid fa-gamepad text-lg mb-0.5"></i>
+                <span class="text-[10px] font-semibold">GAME</span>
+            </button>
+
+            <button onclick="navigateTo('profil')" id="nav-profil" class="nav-item flex flex-col items-center py-1 px-2.5 rounded-2xl text-slate-400 hover:text-emerald-600 transition-all active:scale-90">
+                <i class="fa-solid fa-user text-lg mb-0.5"></i>
+                <span class="text-[10px] font-semibold">PROFIL</span>
+            </button>
+
+        </div>
+
+    </div>
+
+    <script>
+        /* -------------------------------------------------------------
+           APP STATE DATA STRUCTURES & VARIABLES
+        ------------------------------------------------------------- */
+        let currentScreen = 'beranda';
+
+        // Materi State
+        let currentMaterialIndex = 0;
+        let readMaterialsSet = new Set([0]); // Topic index 0 read by default
+
+        const materialsData = [
+            {
+                title: "GEN & DNA",
+                icon: "🧬",
+                desc: "Memahami gen sebagai pembawa informasi genetik dan DNA sebagai materi genetik.",
+                explain: "Gen adalah unit terkecil materi genetik yang menentukan sifat-sifat suatu organisme. DNA (Deoxyribonucleic Acid) adalah molekul besar berbentuk heliks ganda tempat gen tersimpan.",
+                example: "Gen menentukan warna kelopak bunga, tinggi tanaman, atau bentuk rambut manusia.",
+                keys: [
+                    "DNA tersusun atas nukleotida (gula, fosfat, dan basa nitrogen).",
+                    "Gen terdapat di dalam ruas-ruas spesifik molekul DNA.",
+                    "Fungsi utama: Mengendalikan proses metabolisme dan pewarisan sifat."
+                ],
+                challenge: {
+                    q: "Apa sebutan untuk susunan rantai heliks ganda penentu keturunan?",
+                    options: ["DNA", "Ribosom", "Vakuola", "Sitoplasma"],
+                    correct: 0
+                }
+            },
+            {
+                title: "KROMOSOM",
+                icon: "🧪",
+                desc: "Memahami struktur dan fungsi kromosom sebagai pembawa gen.",
+                explain: "Kromosom adalah untaian padat molekul DNA yang tergulung bersama protein histon di dalam inti sel (nukleus). Sel tubuh manusia normal memiliki 46 kromosom (23 pasang).",
+                example: "Manusia: 22 pasang kromosom tubuh (autosom) + 1 pasang kromosom kelamin (gonosom XX/XY).",
+                keys: [
+                    "Kromosom terletak di dalam inti sel.",
+                    "Sentromer adalah bagian tengah kromosom yang menyambungkan dua kromatid.",
+                    "Gonosom menentukan jenis kelamin organisme."
+                ],
+                challenge: {
+                    q: "Berapa jumlah kromosom tubuh (autosom) pada sel normal manusia?",
+                    options: ["22 buah", "44 buah", "46 buah", "23 buah"],
+                    correct: 1
+                }
+            },
+            {
+                title: "GENOTIPE & FENOTIPE",
+                icon: "🌱",
+                desc: "Membedakan sifat genetik dan sifat yang tampak pada organisme.",
+                explain: "Genotipe adalah komposisi genetik penentu sifat yang tidak terlihat langsung (simbol huruf seperti MM, Mm, mm). Fenotip adalah sifat fisik yang tampak atau dapat diamati dari luar.",
+                example: "Tanaman berbunga merah: Genotipe (MM atau Mm), Fenotipe (Warna Merah).",
+                keys: [
+                    "Genotipe berupa simbol alel huruf (contoh: Bb).",
+                    "Fenotipe adalah hasil interaksi antara genotipe dan lingkungan.",
+                    "Homozigot = pasang alel sama (MM/mm), Heterozigot = alel beda (Mm)."
+                ],
+                challenge: {
+                    q: "Manakah di bawah ini yang merupakan contoh fenotipe?",
+                    options: ["Genotipe BB", "Warna bunga ungu", "Alel Bb", "Pasangan dd"],
+                    correct: 1
+                }
+            },
+            {
+                title: "DOMINAN & RESESIF",
+                icon: "👑",
+                desc: "Memahami bagaimana alel dominan dan resesif memengaruhi sifat.",
+                explain: "Alel dominan adalah sifat yang kuat dan menutupi sifat pasangannya (ditulis huruf kapital, misal 'M'). Alel resesif adalah sifat yang tersembunyi/lemah dan hanya muncul jika berpasangan sesama resesif ('mm').",
+                example: "Sifat rambut keriting (K) dominan terhadap rambut lurus (k). Genotipe Kk akan berambut keriting.",
+                keys: [
+                    "Sifat dominan selalu menutupi sifat resesif.",
+                    "Sifat resesif hanya tampak pada kondisi homozigot resesif (mm).",
+                    "Sifat Intermediat = sifat gabungan/antara kedua induk."
+                ],
+                challenge: {
+                    q: "Simbol alel manakah yang melambangkan sifat dominan?",
+                    options: ["Huruf kecil (m)", "Huruf kapital (M)", "Angka 1", "Tanda minus"],
+                    correct: 1
+                }
+            },
+            {
+                title: "PEWARISAN SIFAT",
+                icon: "👨‍👩‍👧",
+                desc: "Memahami cara sifat fisik dan biologis diwariskan dari orang tua ke anak.",
+                explain: "Pewarisan sifat terjadi melalui peleburan sel gamet (sperma dan sel telur). Masing-masing induk menyumbang setengah dari total materi genetik kepada keturunannya.",
+                example: "Anak mewarisi warna mata dari ayah dan bentuk hidung dari ibu.",
+                keys: [
+                    "Gamet jantan (sperma) dan gamet betina (ovum) masing-masing bersifat haploid (n).",
+                    "Zygot hasil pembuahan bersifat diploid (2n).",
+                    "Pewarisan sifat mengikuti prinsip dasar genetika Mendel."
+                ],
+                challenge: {
+                    q: "Berapa proporsi materi genetik yang disumbangkan oleh masing-masing induk?",
+                    options: ["100%", "50%", "25%", "75%"],
+                    correct: 1
+                }
+            },
+            {
+                title: "HUKUM MENDEL",
+                icon: "🔬",
+                desc: "Memahami Hukum Mendel I (Segregasi) dan Hukum Mendel II (Asortasi Bebas).",
+                explain: "Gregor Mendel adalah Bapak Genetika. Hukum I Mendel menyatakan alel memisah secara bebas saat pembentukan gamet. Hukum II Mendel menyatakan alel berpasangan secara bebas saat pembuahan.",
+                example: "Percobaan Mendel menggunakan tanaman kacang ercis (Pisum sativum).",
+                keys: [
+                    "Hukum I Mendel: Hukum Pemisahan Bebas (Segregasi).",
+                    "Hukum II Mendel: Hukum Pengelompokan Bebas (Asortasi).",
+                    "Ercis dipilih karena memiliki sifat beda yang mencolok dan cepat berbuah."
+                ],
+                challenge: {
+                    q: "Tanaman apakah yang digunakan Gregor Mendel dalam penelitiannya?",
+                    options: ["Jagung", "Kacang Ercis", "Padi", "Mawar"],
+                    correct: 1
+                }
+            },
+            {
+                title: "PERSILANGAN MONOHIBRID",
+                icon: "🔀",
+                desc: "Persilangan dengan satu sifat beda (misal: warna bunga saja).",
+                explain: "Persilangan monohibrid mengamati warisan satu sifat beda. Pada F2 dominan penuh, perbandingan genotipe 1 MM : 2 Mm : 1 mm dan perbandingan fenotipe 3 Merah : 1 Putih.",
+                example: "Persilangan antara Mawar Merah (MM) dan Mawar Putih (mm).",
+                keys: [
+                    "P1 = Parenta (Induk pertama).",
+                    "F1 = Filial 1 (Keturunan pertama), F2 = Keturunan kedua.",
+                    "Rasio fenotipe F2 dominan penuh = 3 : 1."
+                ],
+                challenge: {
+                    q: "Berapakah rasio fenotipe keturunan F2 pada persilangan monohibrid dominan penuh?",
+                    options: ["1 : 2 : 1", "3 : 1", "9 : 3 : 3 : 1", "1 : 1"],
+                    correct: 1
+                }
+            },
+            {
+                title: "PUNNETT SQUARE",
+                icon: "📐",
+                desc: "Cara menentukan kemungkinan genotipe dan fenotipe hasil persilangan.",
+                explain: "Papan Punnett adalah diagram kotak-kotak yang digunakan untuk memprediksi hasil kombinasi alel dari gamet jantan dan betina secara sistematik.",
+                example: "Kotak 2x2 digunakan untuk monohibrid, kotak 4x4 untuk dihibrid.",
+                keys: [
+                    "Gamet induk jantan diletakkan di baris atas.",
+                    "Gamet induk betina diletakkan di kolom samping.",
+                    "Isi setiap sel dengan menggabungkan huruf baris dan kolom."
+                ],
+                challenge: {
+                    q: "Jika alel baris M dan alel kolom m digabungkan, apakah genotipe sel tersebut?",
+                    options: ["MM", "Mm", "mm", "M2"],
+                    correct: 1
+                }
+            }
+        ];
+
+        /* -------------------------------------------------------------
+           QUIZ STATE & QUESTIONS (10 Questions SMP Class 9)
+        ------------------------------------------------------------- */
+        let currentQuestion = 1;
+        let score = 0;
+        let correctAnswers = 0;
+        let incorrectAnswers = 0;
+        let quizLivesCount = 3;
+        let answerSelected = false;
+        let selectedAnswerOption = -1;
+
+        const quizQuestions = [
+            {
+                q: "Apa yang dimaksud dengan gen?",
+                options: [
+                    "A. Bagian DNA yang membawa informasi sifat tertentu",
+                    "B. Organ tubuh manusia penyerap nutrisi",
+                    "C. Jaringan penyusun sistem saraf pusat",
+                    "D. Sel darah merah yang mengangkut oksigen"
+                ],
+                correct: 0,
+                explain: "Gen merupakan bagian dari molekul DNA yang membawa informasi genetik untuk menentukan sifat tertentu pada organisme."
+            },
+            {
+                q: "Dimanakah letak kromosom di dalam sel organisme?",
+                options: [
+                    "A. Membran sel",
+                    "B. Inti sel (Nukleus)",
+                    "C. Sitoplasma",
+                    "D. Dinding sel"
+                ],
+                correct: 1,
+                explain: "Kromosom berada di dalam inti sel (nukleus) dan mengandung molekul DNA yang terikat pada protein."
+            },
+            {
+                q: "Sifat fisik atau karakter makhluk hidup yang tampak dari luar disebut...",
+                options: [
+                    "A. Genotipe",
+                    "B. Fenotipe",
+                    "C. Alel",
+                    "D. Kromosom"
+                ],
+                correct: 1,
+                explain: "Fenotipe adalah sifat-sifat yang tampak atau dapat diamati langsung dari luar, seperti warna bunga atau bentuk rambut."
+            },
+            {
+                q: "Pasangan alel dengan simbol 'Mm' menunjukkan kondisi genotipe...",
+                options: [
+                    "A. Homozigot dominan",
+                    "B. Homozigot resesif",
+                    "C. Heterozigot",
+                    "D. Intermediat penuh"
+                ],
+                correct: 2,
+                explain: "Heterozigot adalah kondisi di mana pasangan alel terdiri dari dua huruf yang berbeda (satu dominan 'M' dan satu resesif 'm')."
+            },
+            {
+                q: "Sifat gen yang menutupi sifat pasangannya dinamakan sifat...",
+                options: [
+                    "A. Resesif",
+                    "B. Dominan",
+                    "C. Mutan",
+                    "D. Hibrida"
+                ],
+                correct: 1,
+                explain: "Sifat dominan adalah sifat yang lebih kuat dan menutupi ekspresi sifat pasangannya (resesif)."
+            },
+            {
+                q: "Tokoh yang dikenal sebagai Bapak Genetika Dunia adalah...",
+                options: [
+                    "A. Charles Darwin",
+                    "B. Louis Pasteur",
+                    "C. Gregor Mendel",
+                    "D. Robert Hooke"
+                ],
+                correct: 2,
+                explain: "Gregor Mendel meletakkan hukum-hukum dasar pewarisan sifat melalui percobaan tanaman ercis."
+            },
+            {
+                q: "Pada persilangan Monohibrid dominan penuh antara MM (Merah) dan mm (Putih), fenotipe F1 adalah...",
+                options: [
+                    "A. 100% Bunga Merah",
+                    "B. 50% Merah, 50% Putih",
+                    "C. 100% Bunga Putih",
+                    "D. 100% Bunga Merah Muda"
+                ],
+                correct: 0,
+                explain: "Semua keturunan F1 memiliki genotipe Mm. Karena 'M' dominan terhadap 'm', maka fenotipenya 100% Merah."
+            },
+            {
+                q: "Berapa perbandingan fenotipe keturunan F2 pada persilangan monohibrid dominan penuh?",
+                options: [
+                    "A. 1 : 1",
+                    "B. 1 : 2 : 1",
+                    "C. 3 : 1",
+                    "D. 9 : 3 : 3 : 1"
+                ],
+                correct: 2,
+                explain: "Perbandingan fenotipe F2 dominan penuh adalah 3 Dominan : 1 Resesif (contoh: 3 Merah : 1 Putih)."
+            },
+            {
+                q: "Alat bantu berupa papan catur 2x2 untuk memprediksi persilangan dinamakan...",
+                options: [
+                    "A. Mikroskop Cahaya",
+                    "B. Punnett Square",
+                    "C. Silsilah Keluarga",
+                    "D. Diagram Venn"
+                ],
+                correct: 1,
+                explain: "Punnett Square (Papan Punnett) adalah metode diagrammatic untuk menghitung rasio kemungkinan genotipe keturunan."
+            },
+            {
+                q: "Sel kelamin jantan dan betina bersifat haploid (n). Artinya sel kelamin mengandung...",
+                options: [
+                    "A. Setengah dari jumlah kromosom sel tubuh",
+                    "B. Dua kali lipat dari kromosom sel tubuh",
+                    "C. Tanpa ada kromosom sama sekali",
+                    "D. Tiga set kromosom berpasangan"
+                ],
+                correct: 0,
+                explain: "Sel gamet (haploid/n) hanya membawa setengah dari kromosom sel tubuh (diploid/2n) agar saat pembuahan kembali menjadi 2n."
+            }
+        ];
+
+        /* -------------------------------------------------------------
+           GAME GENETIKA STATE
+        ------------------------------------------------------------- */
+        let gameScore = 0;
+        let currentChallenge = 1; // 1 to 5
+        let gameLives = 3;
+        let punnettAnswers = { cell1: '', cell2: '', cell3: '', cell4: '' };
+        let selectedGameMCQ = -1;
+
+        // Best High Score Memory
+        let bestQuizScore = 0;
+
+        /* -------------------------------------------------------------
+           NAVIGATION & UI ROUTER
+        ------------------------------------------------------------- */
+        function navigateTo(screenId) {
+            currentScreen = screenId;
+            
+            // Hide all screens
+            document.querySelectorAll('.screen-view').forEach(el => {
+                el.classList.add('hidden');
+            });
+
+            // Show selected screen
+            const targetScreen = document.getElementById(`screen-${screenId}`);
+            if (targetScreen) {
+                targetScreen.classList.remove('hidden');
+            }
+
+            // Update bottom nav visual state
+            document.querySelectorAll('.nav-item').forEach(btn => {
+                btn.className = "nav-item flex flex-col items-center py-1 px-2.5 rounded-2xl text-slate-400 hover:text-emerald-600 transition-all active:scale-90";
+                const span = btn.querySelector('span');
+                if (span) span.className = "text-[10px] font-semibold";
+            });
+
+            const activeBtn = document.getElementById(`nav-${screenId}`);
+            if (activeBtn) {
+                activeBtn.className = "nav-item flex flex-col items-center py-1 px-2.5 rounded-2xl text-emerald-700 font-bold bg-emerald-100/70 transition-all active:scale-90 shadow-2xs";
+                const span = activeBtn.querySelector('span');
+                if (span) span.className = "text-[10px] font-extrabold text-emerald-800";
+            }
+
+            // Screen specific initialization triggers
+            if (screenId === 'materi') renderMaterialView();
+            if (screenId === 'kuis' && currentQuestion === 1 && !answerSelected && score === 0) renderQuizQuestion();
+            if (screenId === 'game') renderGameStage();
+            if (screenId === 'beranda') updateHomeProgress();
+
+            // Scroll to top of viewport
+            document.getElementById('viewport').scrollTop = 0;
+        }
+
+        function showToast(msg, iconClass = "fa-circle-info", iconColor = "text-emerald-400") {
+            const toast = document.getElementById('toastNotification');
+            document.getElementById('toastMessage').innerText = msg;
+            const icon = document.getElementById('toastIcon');
+            icon.className = `fa-solid ${iconClass} ${iconColor} text-lg`;
+
+            toast.classList.remove('-translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('-translate-y-20', 'opacity-0');
+            }, 2500);
+        }
+
+        /* -------------------------------------------------------------
+           SCREEN 1 - BERANDA LOGIC
+        ------------------------------------------------------------- */
+        function updateHomeProgress() {
+            // Material Progress
+            const readCount = readMaterialsSet.size;
+            const matPercent = Math.round((readCount / materialsData.length) * 100);
+            document.getElementById('homeMateriProgressText').innerText = `${readCount} / ${materialsData.length} Topik`;
+            document.getElementById('homeMateriBar').style.width = `${matPercent}%`;
+
+            // Quiz Progress
+            document.getElementById('homeQuizScoreText').innerText = `${bestQuizScore} Poin (Maks 100)`;
+            document.getElementById('homeQuizBar').style.width = `${bestQuizScore}%`;
+
+            // Game Progress
+            const gamePercent = Math.min(100, Math.round((gameScore / 100) * 100));
+            document.getElementById('homeGameScoreText').innerText = `${gameScore} Poin`;
+            document.getElementById('homeGameBar').style.width = `${gamePercent}%`;
+
+            // Overall Total Progress
+            const overall = Math.round((matPercent + bestQuizScore + gamePercent) / 3);
+            document.getElementById('overallPercentBadge').innerText = `${overall}% SELESAI`;
+        }
+
+        /* -------------------------------------------------------------
+           SCREEN 2 - MATERI LOGIC
+        ------------------------------------------------------------- */
+        function renderMaterialView() {
+            // Mark topic as read
+            readMaterialsSet.add(currentMaterialIndex);
+
+            const mat = materialsData[currentMaterialIndex];
+            document.getElementById('materiCounterBadge').innerText = `Topik ${currentMaterialIndex + 1}/8`;
+            document.getElementById('matDetailIndex').innerText = `MATERI ${currentMaterialIndex + 1} DARI ${materialsData.length}`;
+            document.getElementById('matDetailTitle').innerText = mat.title;
+            document.getElementById('matDetailIcon').innerText = mat.icon;
+            document.getElementById('matDetailExplain').innerText = mat.explain;
+            document.getElementById('matDetailExample').innerText = mat.example;
+
+            // Render Keys
+            const keyUl = document.getElementById('matDetailKeys');
+            keyUl.innerHTML = mat.keys.map(k => `<li>${k}</li>`).join('');
+
+            // Render Mini Challenge
+            document.getElementById('miniChallengeQ').innerText = mat.challenge.q;
+            const optBox = document.getElementById('miniChallengeOptions');
+            optBox.innerHTML = mat.challenge.options.map((opt, idx) => `
+                <button onclick="checkMiniChallenge(${idx})" class="bg-white hover:bg-amber-100 text-slate-800 font-medium p-2 rounded-xl border border-amber-200 text-left transition-all active:scale-95">
+                    ${opt}
+                </button>
+            `).join('');
+            
+            const fbBox = document.getElementById('miniChallengeFeedback');
+            fbBox.className = 'hidden mt-2 text-xs font-bold p-2 rounded-xl text-center';
+
+            // Button Disable states
+            document.getElementById('btnPrevMaterial').disabled = currentMaterialIndex === 0;
+            document.getElementById('btnNextMaterial').disabled = currentMaterialIndex === materialsData.length - 1;
+
+            // Render Topic List
+            const listEl = document.getElementById('materiTopicList');
+            listEl.innerHTML = materialsData.map((item, idx) => {
+                const isSelected = idx === currentMaterialIndex;
+                const isRead = readMaterialsSet.has(idx);
+                return `
+                    <div onclick="selectMaterialTopic(${idx})" class="${isSelected ? 'bg-emerald-100 border-emerald-500 shadow-sm' : 'bg-white border-slate-200'} p-3 rounded-2xl border flex items-center justify-between cursor-pointer hover:border-emerald-400 transition-all active:scale-98">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-xl">${item.icon}</span>
+                            <div>
+                                <h4 class="font-extrabold text-xs text-slate-800">${idx + 1}. ${item.title}</h4>
+                                <p class="text-[11px] text-slate-500 line-clamp-1">${item.desc}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            ${isRead ? '<i class="fa-solid fa-circle-check text-emerald-500 text-sm"></i>' : ''}
+                            <i class="fa-solid fa-chevron-right text-slate-300 text-xs"></i>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            updateHomeProgress();
+        }
+
+        function changeMaterial(dir) {
+            const nextIdx = currentMaterialIndex + dir;
+            if (nextIdx >= 0 && nextIdx < materialsData.length) {
+                currentMaterialIndex = nextIdx;
+                renderMaterialView();
+            }
+        }
+
+        function selectMaterialTopic(idx) {
+            currentMaterialIndex = idx;
+            renderMaterialView();
+            document.getElementById('materialDetailBox').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function checkMiniChallenge(selectedIdx) {
+            const mat = materialsData[currentMaterialIndex];
+            const fbBox = document.getElementById('miniChallengeFeedback');
+            fbBox.classList.remove('hidden');
+
+            if (selectedIdx === mat.challenge.correct) {
+                fbBox.className = "mt-2 text-xs font-bold p-2.5 rounded-xl text-center bg-emerald-100 text-emerald-800 border border-emerald-300";
+                fbBox.innerHTML = "✓ TEPAT SEKALI! Kamu memahami konsep ini.";
+            } else {
+                fbBox.className = "mt-2 text-xs font-bold p-2.5 rounded-xl text-center bg-red-100 text-red-800 border border-red-300";
+                fbBox.innerHTML = `✗ BELUM TEPAT. Jawaban benar: ${mat.challenge.options[mat.challenge.correct]}`;
+            }
+        }
+
+        /* -------------------------------------------------------------
+           SCREEN 3 - KUIS LOGIC
+        ------------------------------------------------------------- */
+        function renderQuizQuestion() {
+            const q = quizQuestions[currentQuestion - 1];
+            document.getElementById('quizStageLabel').innerText = `SOAL ${currentQuestion} DARI ${quizQuestions.length}`;
+            document.getElementById('quizProgressText').innerText = `SOAL ${currentQuestion} DARI ${quizQuestions.length}`;
+            
+            const pct = Math.round((currentQuestion / quizQuestions.length) * 100);
+            document.getElementById('quizPercentText').innerText = `${pct}%`;
+            document.getElementById('quizProgressBar').style.width = `${pct}%`;
+            document.getElementById('quizScoreDisplay').innerText = score;
+
+            // Render Lives
+            let livesHtml = '';
+            for (let i = 0; i < 3; i++) {
+                if (i < quizLivesCount) {
+                    livesHtml += '<i class="fa-solid fa-heart"></i>';
+                } else {
+                    livesHtml += '<i class="fa-regular fa-heart text-slate-300"></i>';
+                }
+            }
+            document.getElementById('quizLives').innerHTML = livesHtml;
+
+            document.getElementById('quizQuestionText').innerText = `${currentQuestion}. ${q.q}`;
+
+            // Reset Options
+            selectedAnswerOption = -1;
+            answerSelected = false;
+
+            const optContainer = document.getElementById('quizOptionsContainer');
+            optContainer.innerHTML = q.options.map((opt, idx) => `
+                <button onclick="selectQuizOption(${idx})" id="quiz-opt-${idx}" class="w-full text-left p-3.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-800 text-xs font-bold hover:bg-purple-50 hover:border-purple-300 transition-all flex items-center justify-between">
+                    <span>${opt}</span>
+                    <i class="fa-regular fa-circle text-slate-300 text-sm check-icon"></i>
+                </button>
+            `).join('');
+
+            // Reset feedback and action button
+            document.getElementById('quizFeedbackBox').classList.add('hidden');
+            const actionBtn = document.getElementById('btnQuizAction');
+            actionBtn.innerText = "JAWAB";
+            actionBtn.disabled = false;
+            actionBtn.className = "w-full bg-purple-600 hover:bg-purple-700 active:scale-98 text-white font-black py-3 rounded-2xl shadow-md transition-all text-xs tracking-wider uppercase";
+        }
+
+        function selectQuizOption(idx) {
+            if (answerSelected) return; // Disallow option changes after submitting
+
+            selectedAnswerOption = idx;
+            document.querySelectorAll('#quizOptionsContainer button').forEach((btn, i) => {
+                if (i === idx) {
+                    btn.className = "w-full text-left p-3.5 rounded-2xl border-2 border-purple-600 bg-purple-100/70 text-purple-900 text-xs font-black shadow-2xs transition-all scale-[1.01]";
+                    btn.querySelector('.check-icon').className = "fa-solid fa-circle-check text-purple-600 text-sm check-icon";
+                } else {
+                    btn.className = "w-full text-left p-3.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-800 text-xs font-bold transition-all";
+                    btn.querySelector('.check-icon').className = "fa-regular fa-circle text-slate-300 text-sm check-icon";
+                }
+            });
+        }
+
+        function handleQuizSubmit() {
+            const actionBtn = document.getElementById('btnQuizAction');
+
+            // If question has been answered, button acts as NEXT / SEE RESULT
+            if (answerSelected) {
+                if (currentQuestion < quizQuestions.length) {
+                    currentQuestion++;
+                    renderQuizQuestion();
+                } else {
+                    showQuizResult();
+                }
+                return;
+            }
+
+            // Validating answer selection
+            if (selectedAnswerOption === -1) {
+                showToast("Silakan pilih jawaban terlebih dahulu!", "fa-triangle-exclamation", "text-amber-400");
+                return;
+            }
+
+            // Lock answer selection
+            answerSelected = true;
+            const q = quizQuestions[currentQuestion - 1];
+            const fbBox = document.getElementById('quizFeedbackBox');
+            const fbTitle = document.getElementById('quizFeedbackTitle');
+            const fbDesc = document.getElementById('quizFeedbackExplanation');
+            fbBox.classList.remove('hidden');
+
+            const isCorrect = selectedAnswerOption === q.correct;
+            const selectedBtn = document.getElementById(`quiz-opt-${selectedAnswerOption}`);
+
+            if (isCorrect) {
+                score += 10;
+                correctAnswers++;
+                document.getElementById('quizScoreDisplay').innerText = score;
+
+                selectedBtn.className = "w-full text-left p-3.5 rounded-2xl border-2 border-emerald-500 bg-emerald-100 text-emerald-900 text-xs font-black";
+                selectedBtn.querySelector('.check-icon').className = "fa-solid fa-circle-check text-emerald-600 text-sm check-icon";
+
+                fbBox.className = "p-3.5 rounded-2xl text-xs space-y-1 bg-emerald-50 border-emerald-300 text-emerald-900 border bounce-celebrate";
+                fbTitle.innerText = "✓ JAWABAN BENAR!";
+                fbDesc.innerText = q.explain;
+            } else {
+                incorrectAnswers++;
+                if (quizLivesCount > 0) quizLivesCount--;
+
+                selectedBtn.className = "w-full text-left p-3.5 rounded-2xl border-2 border-red-500 bg-red-100 text-red-900 text-xs font-black shake";
+                selectedBtn.querySelector('.check-icon').className = "fa-solid fa-circle-xmark text-red-500 text-sm check-icon";
+
+                // Highlight correct option
+                const correctBtn = document.getElementById(`quiz-opt-${q.correct}`);
+                if (correctBtn) {
+                    correctBtn.className = "w-full text-left p-3.5 rounded-2xl border-2 border-emerald-500 bg-emerald-50 text-emerald-900 text-xs font-bold";
+                }
+
+                fbBox.className = "p-3.5 rounded-2xl text-xs space-y-1 bg-red-50 border-red-300 text-red-900 border";
+                fbTitle.innerText = "✗ JAWABAN KURANG TEPAT";
+                fbDesc.innerText = `Jawaban yang benar: ${q.options[q.correct]}\n\n${q.explain}`;
+            }
+
+            // Update action button for progression
+            if (currentQuestion < quizQuestions.length) {
+                actionBtn.innerText = "SOAL BERIKUTNYA";
+                actionBtn.className = "w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3 rounded-2xl shadow-md transition-all text-xs tracking-wider uppercase";
+            } else {
+                actionBtn.innerText = "LIHAT HASIL";
+                actionBtn.className = "w-full bg-amber-500 hover:bg-amber-600 text-slate-900 font-black py-3 rounded-2xl shadow-md transition-all text-xs tracking-wider uppercase";
+            }
+        }
+
+        function showQuizResult() {
+            document.getElementById('quizPlayArea').classList.add('hidden');
+            document.getElementById('quizResultArea').classList.remove('hidden');
+
+            const percentage = Math.round((correctAnswers / quizQuestions.length) * 100);
+
+            // Update high score memory
+            if (score > bestQuizScore) {
+                bestQuizScore = score;
+            }
+
+            document.getElementById('resQuizScore').innerText = score;
+            document.getElementById('resQuizCorrect').innerText = correctAnswers;
+            document.getElementById('resQuizIncorrect').innerText = incorrectAnswers;
+            document.getElementById('resQuizPercent').innerText = `${percentage}%`;
+
+            // Calculate Stars
+            let starCount = 1;
+            if (percentage >= 81) starCount = 5;
+            else if (percentage >= 61) starCount = 4;
+            else if (percentage >= 41) starCount = 3;
+            else if (percentage >= 21) starCount = 2;
+
+            const starBox = document.getElementById('quizStarsContainer');
+            let starsHtml = '';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= starCount) starsHtml += '<i class="fa-solid fa-star"></i>';
+                else starsHtml += '<i class="fa-regular fa-star text-slate-300"></i>';
+            }
+            starBox.innerHTML = starsHtml;
+
+            // Motivational Message
+            const msgEl = document.getElementById('resQuizMsg');
+            if (percentage >= 80) {
+                msgEl.innerText = "Hebat! Pemahamanmu tentang genetika dan pewarisan sifat sudah sangat baik.";
+            } else if (percentage >= 60) {
+                msgEl.innerText = "Bagus! Terus tingkatkan pemahamanmu tentang pewarisan sifat.";
+            } else {
+                msgEl.innerText = "Jangan menyerah. Pelajari kembali materi dan coba kuis lagi.";
+            }
+
+            updateHomeProgress();
+        }
+
+        function resetQuiz() {
+            currentQuestion = 1;
+            score = 0;
+            correctAnswers = 0;
+            incorrectAnswers = 0;
+            quizLivesCount = 3;
+            answerSelected = false;
+            selectedAnswerOption = -1;
+
+            document.getElementById('quizResultArea').classList.add('hidden');
+            document.getElementById('quizPlayArea').classList.remove('hidden');
+
+            renderQuizQuestion();
+        }
+
+        /* -------------------------------------------------------------
+           SCREEN 4 - GAME GENETIKA LOGIC (Multi Stage Interactive)
+        ------------------------------------------------------------- */
+        function renderGameStage() {
+            document.getElementById('gameScoreDisplay').innerText = gameScore;
+            document.getElementById('gameStageTitle').innerText = `LEVEL ${currentChallenge}`;
+            document.getElementById('gameChallengeStepText').innerText = `Tantangan ${currentChallenge} / 5`;
+
+            // Render Step Dots
+            const stepDots = document.getElementById('gameStepDots');
+            stepDots.innerHTML = [1, 2, 3, 4, 5].map(step => `
+                <span class="w-3 h-3 rounded-full ${step === currentChallenge ? 'bg-amber-500 ring-2 ring-amber-300' : step < currentChallenge ? 'bg-emerald-500' : 'bg-slate-200'}"></span>
+            `).join('');
+
+            // Render Game Lives
+            let livesHtml = '';
+            for (let i = 0; i < 3; i++) {
+                if (i < gameLives) livesHtml += '<i class="fa-solid fa-heart"></i>';
+                else livesHtml += '<i class="fa-regular fa-heart text-slate-500"></i>';
+            }
+            document.getElementById('gameLivesDisplay').innerHTML = livesHtml;
+
+            // Reset Feedback
+            document.getElementById('gameFeedbackBox').classList.add('hidden');
+            const actionBtn = document.getElementById('btnGameAction');
+            actionBtn.innerText = "CEK JAWABAN";
+            actionBtn.className = "w-full bg-amber-500 hover:bg-amber-600 active:scale-98 text-slate-900 font-black py-3 rounded-2xl shadow-md transition-all text-xs tracking-wider uppercase";
+
+            const container = document.getElementById('gameChallengeContainer');
+            selectedGameMCQ = -1;
+
+            if (currentChallenge === 1) {
+                // STAGE 1: Konsep Dasar
+                container.innerHTML = `
+                    <div class="space-y-3">
+                        <span class="text-[10px] font-black uppercase text-amber-700 bg-amber-100 px-2.5 py-1 rounded-full">
+                            STAGE 1: KONSEP DASAR
+                        </span>
+                        <p class="text-xs font-extrabold text-slate-800 leading-relaxed">
+                            "Sifat gen dominan yang berpasangan dengan sifat resesif (heterozigot Mm) akan menunjukkan sifat apa?"
+                        </p>
+                        <div class="space-y-2">
+                            ${[
+                                "A. Selalu tertutupi sepenuhnya",
+                                "B. Hanya muncul jika homozigot",
+                                "C. Sifat dominan yang tampak",
+                                "D. Sifat tidak muncul sama sekali"
+                            ].map((opt, idx) => `
+                                <button onclick="selectGameMCQ(${idx})" id="game-mcq-${idx}" class="w-full text-left p-3 rounded-2xl border border-slate-200 bg-slate-50 text-slate-800 text-xs font-bold hover:bg-amber-50 transition-all">
+                                    ${opt}
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            } else if (currentChallenge === 2) {
+                // STAGE 2: Papan Punnett Square Interaktif (MM x mm)
+                punnettAnswers = { cell1: '', cell2: '', cell3: '', cell4: '' };
+                container.innerHTML = `
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-[10px] font-black uppercase text-amber-700 bg-amber-100 px-2.5 py-1 rounded-full">
+                                STAGE 2: PAPAN PUNNETT INTERAKTIF
+                            </span>
+                            <span class="text-xs font-black text-emerald-700">Persilangan: MM × mm</span>
+                        </div>
+                        <p class="text-xs text-slate-600 font-medium">
+                            Lengkapi ke-4 kotak Punnett Square berikut dengan memilih pasangan alel yang benar!
+                        </p>
+
+                        <!-- Interactive Punnett Grid -->
+                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 max-w-[260px] mx-auto text-center space-y-2">
+                            <div class="grid grid-cols-3 gap-1.5 items-center text-xs font-black">
+                                <div class="text-slate-400">♀ \ ♂</div>
+                                <div class="bg-emerald-200 p-2 rounded-xl text-emerald-900">M</div>
+                                <div class="bg-emerald-200 p-2 rounded-xl text-emerald-900">M</div>
+
+                                <div class="bg-amber-200 p-2 rounded-xl text-amber-900">m</div>
+                                <button onclick="setPunnettCell('cell1')" id="punnett-cell1" class="punnett-cell bg-white border-2 border-dashed border-slate-300 p-2.5 rounded-xl text-sm font-extrabold text-slate-400 hover:border-amber-400">?</button>
+                                <button onclick="setPunnettCell('cell2')" id="punnett-cell2" class="punnett-cell bg-white border-2 border-dashed border-slate-300 p-2.5 rounded-xl text-sm font-extrabold text-slate-400 hover:border-amber-400">?</button>
+
+                                <div class="bg-amber-200 p-2 rounded-xl text-amber-900">m</div>
+                                <button onclick="setPunnettCell('cell3')" id="punnett-cell3" class="punnett-cell bg-white border-2 border-dashed border-slate-300 p-2.5 rounded-xl text-sm font-extrabold text-slate-400 hover:border-amber-400">?</button>
+                                <button onclick="setPunnettCell('cell4')" id="punnett-cell4" class="punnett-cell bg-white border-2 border-dashed border-slate-300 p-2.5 rounded-xl text-sm font-extrabold text-slate-400 hover:border-amber-400">?</button>
+                            </div>
+                        </div>
+
+                        <!-- Genotype Selector Keyboard -->
+                        <div class="text-center space-y-1">
+                            <span class="text-[10px] font-bold text-slate-500">PILIH GENOTIPE UNTUK KOTAK TERPILIH:</span>
+                            <div class="flex justify-center space-x-2">
+                                <button onclick="applyGenotype('MM')" class="bg-emerald-600 text-white font-black text-xs px-4 py-2 rounded-xl active:scale-90 shadow-sm">MM</button>
+                                <button onclick="applyGenotype('Mm')" class="bg-amber-500 text-slate-900 font-black text-xs px-4 py-2 rounded-xl active:scale-90 shadow-sm">Mm</button>
+                                <button onclick="applyGenotype('mm')" class="bg-purple-600 text-white font-black text-xs px-4 py-2 rounded-xl active:scale-90 shadow-sm">mm</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (currentChallenge === 3) {
+                // STAGE 3: Genotipe & Fenotipe
+                container.innerHTML = `
+                    <div class="space-y-3">
+                        <span class="text-[10px] font-black uppercase text-amber-700 bg-amber-100 px-2.5 py-1 rounded-full">
+                            STAGE 3: GENOTIPE & FENOTIPE
+                        </span>
+                        <p class="text-xs font-extrabold text-slate-800 leading-relaxed">
+                            "Jika seseorang memiliki pasangan alel Bb (B = Rambut Keriting, b = Rambut Lurus), manakah pernyataan yang tepat mengenai Genotipe dan Fenotipe?"
+                        </p>
+                        <div class="space-y-2">
+                            ${[
+                                "A. Genotipe = Bb, Fenotipe = Rambut Keriting",
+                                "B. Genotipe = Rambut Keriting, Fenotipe = Bb",
+                                "C. Genotipe = Bb, Fenotipe = Rambut Lurus",
+                                "D. Genotipe = bb, Fenotipe = Rambut Keriting"
+                            ].map((opt, idx) => `
+                                <button onclick="selectGameMCQ(${idx})" id="game-mcq-${idx}" class="w-full text-left p-3 rounded-2xl border border-slate-200 bg-slate-50 text-slate-800 text-xs font-bold hover:bg-amber-50 transition-all">
+                                    ${opt}
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            } else if (currentChallenge === 4) {
+                // STAGE 4: Dominan & Resesif Visual Concept
+                container.innerHTML = `
+                    <div class="space-y-3">
+                        <span class="text-[10px] font-black uppercase text-amber-700 bg-amber-100 px-2.5 py-1 rounded-full">
+                            STAGE 4: DOMINAN & RESESIF
+                        </span>
+                        <p class="text-xs font-extrabold text-slate-800 leading-relaxed">
+                            Pilihlah kondisi alel agar sifat resesif (misal: warna bunga putih 'mm') dapat tampak pada fenotipe fisik!
+                        </p>
+
+                        <div class="grid grid-cols-2 gap-3 pt-1">
+                            <div onclick="selectGameMCQ(0)" id="game-mcq-0" class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 text-center cursor-pointer hover:border-amber-400">
+                                <span class="text-2xl block mb-1">👑</span>
+                                <span class="text-xs font-black text-slate-800 block">Homozigot Dominan (MM)</span>
+                            </div>
+                            <div onclick="selectGameMCQ(1)" id="game-mcq-1" class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 text-center cursor-pointer hover:border-amber-400">
+                                <span class="text-2xl block mb-1">🌱</span>
+                                <span class="text-xs font-black text-slate-800 block">Homozigot Resesif (mm)</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (currentChallenge === 5) {
+                // STAGE 5: Monohybrid Cross Aa x Aa
+                container.innerHTML = `
+                    <div class="space-y-3">
+                        <span class="text-[10px] font-black uppercase text-amber-700 bg-amber-100 px-2.5 py-1 rounded-full">
+                            STAGE 5: PERSILANGAN MONOHIBRID
+                        </span>
+                        <p class="text-xs font-extrabold text-slate-800 leading-relaxed">
+                            "Pada persilangan sesama heterozigot Aa × Aa, berapakah perbandingan fenotipe keturunan jika 'A' (Tinggi) dominan terhadap 'a' (Pendek)?"
+                        </p>
+                        <div class="space-y-2">
+                            ${[
+                                "A. 100% Tinggi",
+                                "B. 3 Tinggi : 1 Pendek",
+                                "C. 1 Tinggi : 1 Pendek",
+                                "D. 1 Tinggi : 2 Sedang : 1 Pendek"
+                            ].map((opt, idx) => `
+                                <button onclick="selectGameMCQ(${idx})" id="game-mcq-${idx}" class="w-full text-left p-3 rounded-2xl border border-slate-200 bg-slate-50 text-slate-800 text-xs font-bold hover:bg-amber-50 transition-all">
+                                    ${opt}
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Punnett cell selector state
+        let activePunnettCell = 'cell1';
+        function setPunnettCell(cellId) {
+            activePunnettCell = cellId;
+            document.querySelectorAll('.punnett-cell').forEach(el => el.classList.remove('ring-2', 'ring-amber-500', 'bg-amber-50'));
+            const activeEl = document.getElementById(`punnett-${cellId}`);
+            if (activeEl) {
+                activeEl.classList.add('ring-2', 'ring-amber-500', 'bg-amber-50');
+            }
+        }
+
+        function applyGenotype(val) {
+            punnettAnswers[activePunnettCell] = val;
+            const activeEl = document.getElementById(`punnett-${activePunnettCell}`);
+            if (activeEl) {
+                activeEl.innerText = val;
+                activeEl.className = "punnett-cell bg-emerald-100 border-2 border-emerald-500 p-2.5 rounded-xl text-sm font-black text-emerald-900 shadow-2xs";
+            }
+        }
+
+        function selectGameMCQ(idx) {
+            selectedGameMCQ = idx;
+            document.querySelectorAll('#gameChallengeContainer button, #gameChallengeContainer div[id^="game-mcq-"]').forEach((btn, i) => {
+                if (i === idx) {
+                    btn.className = btn.tagName === 'DIV' 
+                        ? "p-3.5 bg-amber-100 rounded-2xl border-2 border-amber-500 text-center cursor-pointer scale-102 transition-all shadow-2xs"
+                        : "w-full text-left p-3 rounded-2xl border-2 border-amber-500 bg-amber-100 text-amber-900 text-xs font-black shadow-2xs transition-all";
+                } else {
+                    btn.className = btn.tagName === 'DIV'
+                        ? "p-3.5 bg-slate-50 rounded-2xl border border-slate-200 text-center cursor-pointer"
+                        : "w-full text-left p-3 rounded-2xl border border-slate-200 bg-slate-50 text-slate-800 text-xs font-bold transition-all";
+                }
+            });
+        }
+
+        function handleGameSubmit() {
+            const actionBtn = document.getElementById('btnGameAction');
+
+            // Progression check if feedback is already visible
+            if (actionBtn.innerText === "LEVEL BERIKUTNYA") {
+                if (currentChallenge < 5) {
+                    currentChallenge++;
+                    renderGameStage();
+                } else {
+                    showGameResult();
+                }
+                return;
+            }
+
+            const fbBox = document.getElementById('gameFeedbackBox');
+            const fbTitle = document.getElementById('gameFeedbackTitle');
+            const fbDesc = document.getElementById('gameFeedbackDesc');
+            fbBox.classList.remove('hidden');
+
+            let isStageCorrect = false;
+            let explanationText = "";
+
+            if (currentChallenge === 1) {
+                if (selectedGameMCQ === -1) { showToast("Pilih salah satu jawaban!"); return; }
+                isStageCorrect = (selectedGameMCQ === 2);
+                explanationText = "Sifat dominan akan selalu menutupi sifat resesif saat dalam kondisi heterozigot (Mm).";
+            } else if (currentChallenge === 2) {
+                // All 4 cells in MM x mm must be Mm
+                const allMm = punnettAnswers.cell1 === 'Mm' && punnettAnswers.cell2 === 'Mm' && punnettAnswers.cell3 === 'Mm' && punnettAnswers.cell4 === 'Mm';
+                isStageCorrect = allMm;
+                explanationText = "Persilangan MM x mm menghasilkan 100% genotipe heterozigot Mm di keempat kotak Punnett.";
+            } else if (currentChallenge === 3) {
+                if (selectedGameMCQ === -1) { showToast("Pilih salah satu jawaban!"); return; }
+                isStageCorrect = (selectedGameMCQ === 0);
+                explanationText = "Genotipe ditunjukkan oleh alel Bb, sedangkan Fenotipe adalah wujud fisik yang tampak yaitu Rambut Keriting.";
+            } else if (currentChallenge === 4) {
+                if (selectedGameMCQ === -1) { showToast("Pilih salah satu jawaban!"); return; }
+                isStageCorrect = (selectedGameMCQ === 1);
+                explanationText = "Sifat resesif hanya dapat muncul pada fenotipe jika berada dalam keadaan homozigot resesif (mm).";
+            } else if (currentChallenge === 5) {
+                if (selectedGameMCQ === -1) { showToast("Pilih salah satu jawaban!"); return; }
+                isStageCorrect = (selectedGameMCQ === 1);
+                explanationText = "Rasio fenotipe hasil persilangan monohibrid Aa x Aa adalah 3 Tinggi (AA, Aa, Aa) : 1 Pendek (aa).";
+            }
+
+            if (isStageCorrect) {
+                const bonus = (currentChallenge === 2) ? 20 : 20;
+                gameScore += bonus;
+                document.getElementById('gameScoreDisplay').innerText = gameScore;
+
+                fbBox.className = "p-3.5 rounded-2xl text-xs space-y-1 bg-emerald-100 border border-emerald-300 text-emerald-900 bounce-celebrate";
+                fbTitle.innerText = "✓ BENAR!";
+                fbDesc.innerText = explanationText;
+            } else {
+                if (gameLives > 0) gameLives--;
+                fbBox.className = "p-3.5 rounded-2xl text-xs space-y-1 bg-red-100 border border-red-300 text-red-900 shake";
+                fbTitle.innerText = "✗ BELUM TEPAT";
+                fbDesc.innerText = explanationText;
+            }
+
+            if (currentChallenge < 5) {
+                actionBtn.innerText = "LEVEL BERIKUTNYA";
+                actionBtn.className = "w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3 rounded-2xl shadow-md transition-all text-xs tracking-wider uppercase";
+            } else {
+                actionBtn.innerText = "LIHAT HASIL GAME";
+                actionBtn.className = "w-full bg-amber-500 hover:bg-amber-600 text-slate-900 font-black py-3 rounded-2xl shadow-md transition-all text-xs tracking-wider uppercase";
+            }
+        }
+
+        function showGameResult() {
+            document.getElementById('gamePlayArea').classList.add('hidden');
+            document.getElementById('gameResultArea').classList.remove('hidden');
+
+            document.getElementById('resGameScore').innerText = gameScore;
+
+            updateHomeProgress();
+        }
+
+        function resetGame() {
+            gameScore = 0;
+            currentChallenge = 1;
+            gameLives = 3;
+
+            document.getElementById('gameResultArea').classList.add('hidden');
+            document.getElementById('gamePlayArea').classList.remove('hidden');
+
+            renderGameStage();
+        }
+
+        /* -------------------------------------------------------------
+           INITIALIZATION ON WINDOW LOAD
+        ------------------------------------------------------------- */
+        window.onload = function() {
+            // Clock Simulation
+            setInterval(() => {
+                const now = new Date();
+                const hh = String(now.getHours()).padStart(2, '0');
+                const mm = String(now.getMinutes()).padStart(2, '0');
+                const clockEl = document.getElementById('topTime');
+                if (clockEl) clockEl.innerText = `${hh}:${mm}`;
+            }, 1000);
+
+            // Initial view setup
+            navigateTo('beranda');
+        };
+    </script>
+</body>
+</html>
